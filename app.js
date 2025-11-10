@@ -80,6 +80,29 @@ app.post("/api/resource", (req, res) => {
 });
 
 // ---------------------------
+// 5. CAT API - palauttaa kissan JSON-datan
+// ---------------------------
+// http://localhost:3000/api/v1/cat
+app.get("/api/v1/cat", (req, res) => {
+  const cat = {
+    cat_id: 1,
+    name: "Luna",
+    birthdate: "2020-05-15",
+    weight: 4.3,
+    owner: "Ali",
+    image: "https://loremflickr.com/320/240/cat",
+  };
+
+  res.json(cat);
+});
+
+// ---------------------------
+// 6. Staattisten tiedostojen tarjoaminen (public folder)
+// ---------------------------
+// http://localhost:3000/public/cat.jpg
+app.use("/public", express.static("public"));
+
+// ---------------------------
 // 5. Käynnistetään palvelin
 // ---------------------------
 app.listen(port, hostname, () => {
