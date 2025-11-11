@@ -1,16 +1,13 @@
 {
   "name": "express-week3",
   "version": "1.0.0",
-  "description": "My first Express server project",
-  "main": "app.js",
+  "description": "My Express Routing and Middleware project",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "express": "^5.1.0"
   },
