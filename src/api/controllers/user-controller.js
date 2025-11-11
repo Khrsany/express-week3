@@ -1,33 +1,41 @@
-import { addUser, findUserById, listAllUsers } from "../models/user-model.js";
+// src/api/controllers/user-controller.js
+import { listAllUsers, findUserById, addUser } from "../models/user-model.js";
 
-const getUser = (req, res) => {
-  res.json(listAllUsers());
+// hae kaikki käyttäjät
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await listAllUsers();
+    res.json(users);
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    res.status(500).json({ message: "Database error" });
+  }
 };
 
-const getUserById = (req, res) => {
-  const user = findUserById(req.params.id);
-  if (user) {
+// hae käyttäjä id:n perusteella
+const getUserById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await findUserById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     res.json(user);
-  } else {
-    res.sendStatus(404);
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).json({ message: "Database error" });
   }
 };
 
-const postUser = (req, res) => {
-  const result = addUser(req.body);
-  if (result.user_id) {
-    res.status(201).json({ message: "New user added.", result });
-  } else {
-    res.sendStatus(400);
+// lisää uusi käyttäjä
+const createUser = async (req, res) => {
+  try {
+    const result = await addUser(req.body);
+    res.status(201).json(result);
+  } catch (err) {
+    console.error("Error adding user:", err);
+    res.status(500).json({ message: "Database error" });
   }
 };
 
-const putUser = (req, res) => {
-  res.json({ message: "User item updated." });
-};
-
-const deleteUser = (req, res) => {
-  res.json({ message: "User item deleted." });
-};
-
-export { getUser, getUserById, postUser, putUser, deleteUser };
+export { getAllUsers, getUserById, createUser };

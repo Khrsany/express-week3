@@ -1,43 +1,41 @@
-import { addCat, findCatById, listAllCats } from "../models/cat-model.js";
+// src/api/controllers/cat-controller.js
+import { listAllCats, findCatById, addCat } from "../models/cat-model.js";
 
-const getCat = (req, res) => {
-  res.json(listAllCats());
+// hae kaikki kissat
+const getAllCats = async (req, res) => {
+  try {
+    const cats = await listAllCats();
+    res.json(cats);
+  } catch (err) {
+    console.error("Error fetching cats:", err);
+    res.status(500).json({ message: "Database error" });
+  }
 };
 
-const getCatById = (req, res) => {
-  const cat = findCatById(req.params.id);
-  if (cat) {
+// hae yksittäinen kissa id:n perusteella
+const getCatById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const cat = await findCatById(id);
+    if (!cat) {
+      return res.status(404).json({ message: "Cat not found" });
+    }
     res.json(cat);
-  } else {
-    res.sendStatus(404);
+  } catch (err) {
+    console.error("Error fetching cat:", err);
+    res.status(500).json({ message: "Database error" });
   }
 };
 
-const postCat = (req, res) => {
-  console.log("Form data:", req.body); // tulostaa tekstikenttien tiedot
-  console.log("File data:", req.file); // tulostaa ladatun tiedoston tiedot
-
-  // tallennetaan mock "tietokantaan"
-  const result = addCat(req.body);
-
-  if (result.cat_id) {
-    res.status(201).json({
-      message: "New cat added.",
-      body: req.body,
-      file: req.file,
-      result,
-    });
-  } else {
-    res.sendStatus(400);
+// lisää uusi kissa
+const createCat = async (req, res) => {
+  try {
+    const result = await addCat(req.body);
+    res.status(201).json(result);
+  } catch (err) {
+    console.error("Error adding cat:", err);
+    res.status(500).json({ message: "Database error" });
   }
 };
 
-const putCat = (req, res) => {
-  res.json({ message: "Cat item updated." });
-};
-
-const deleteCat = (req, res) => {
-  res.json({ message: "Cat item deleted." });
-};
-
-export { getCat, getCatById, postCat, putCat, deleteCat };
+export { getAllCats, getCatById, createCat };
