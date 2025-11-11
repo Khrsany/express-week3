@@ -4,10 +4,8 @@ import userRouter from "./routes/user-router.js";
 
 const router = express.Router();
 
-// Kissareitit
-router.use("/cat", catRouter);
-
-// Käyttäjäreitit
-router.use("/user", userRouter);
+// yhdistetään kissareitit ja käyttäjäreitit
+router.use("/cats", catRouter);
+router.use("/users", userRouter);
 
 export default router;

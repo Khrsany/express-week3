@@ -1,27 +1,19 @@
-// Tuodaan moduulit
 import express from "express";
 import api from "./api/index.js";
 
-// Luodaan Express-sovellus
 const app = express();
 
-// Sallitaan JSON-datan lukeminen pyynnön rungosta
 app.use(express.json());
 
-// Liitetään API (kootut reitit: cat + user)
+// liitetään API (reitit: cats + users)
 app.use("/api/v1", api);
 
-// ---------------------------
-// 1. Pääreitti (root path)
-// ---------------------------
+// pääreitti
 app.get("/", (req, res) => {
   res.send("Welcome to my REST API!");
 });
 
-// ---------------------------
-// 2. Staattiset tiedostot (public folder)
-// ---------------------------
+// staattiset tiedostot
 app.use("/public", express.static("public"));
 
-// Viedään app muualle (index.js käyttää tätä)
 export default app;

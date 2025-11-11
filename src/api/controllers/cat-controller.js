@@ -14,9 +14,19 @@ const getCatById = (req, res) => {
 };
 
 const postCat = (req, res) => {
+  console.log("Form data:", req.body); // tulostaa tekstikenttien tiedot
+  console.log("File data:", req.file); // tulostaa ladatun tiedoston tiedot
+
+  // tallennetaan mock "tietokantaan"
   const result = addCat(req.body);
+
   if (result.cat_id) {
-    res.status(201).json({ message: "New cat added.", result });
+    res.status(201).json({
+      message: "New cat added.",
+      body: req.body,
+      file: req.file,
+      result,
+    });
   } else {
     res.sendStatus(400);
   }
