@@ -1,29 +1,55 @@
 // src/api/models/cat-model.js
 import { query } from "../../utils/database.js";
 
-// Hae kaikki kissat
-const listAllCats = async () => {
-  const rows = await query("SELECT * FROM wsk_cats");
-  return rows;
+/**
+ * Lisää uusi kissa tietokantaan
+ */
+const addCat = async ({ cat_name, weight, owner, birthdate, filename }) => {
+  const sql = `
+    INSERT INTO wsk_cats (cat_name, weight, owner, birthdate, filename)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  const params = [cat_name, weight, owner, birthdate, filename];
+
+  try {
+    const result = await query(sql, params);
+    return {
+      cat_id: result.insertId,
+      cat_name,
+      weight,
+      owner,
+      birthdate,
+      filename,
+    };
+  } catch (err) {
+    return { error: err.message };
+  }
 };
 
-// Hae kissa ID:n perusteella
-const findCatById = async (id) => {
-  const rows = await query("SELECT * FROM wsk_cats WHERE cat_id = ?", [id]);
-  if (rows.length === 0) return false;
+/**
+ * Hae kaikki kissat tietokannasta
+ */
+const getAllCats = async () => {
+  const sql = `
+    SELECT cat_id, cat_name, weight, owner, birthdate, filename
+    FROM wsk_cats
+  `;
+  const cats = await query(sql);
+  return cats;
+};
+
+/**
+ * Hae yksittäinen kissa ID:n perusteella (tarvittaessa)
+ */
+const getCatById = async (cat_id) => {
+  const sql = `
+    SELECT cat_id, cat_name, weight, owner, birthdate, filename
+    FROM wsk_cats
+    WHERE cat_id = ?
+    LIMIT 1
+  `;
+  const rows = await query(sql, [cat_id]);
   return rows[0];
 };
 
-// Lisää uusi kissa tietokantaan
-const addCat = async (cat) => {
-  const { cat_name, weight, owner, filename, birthdate } = cat;
-  const sql = `INSERT INTO wsk_cats (cat_name, weight, owner, filename, birthdate)
-               VALUES (?, ?, ?, ?, ?)`;
-  const params = [cat_name, weight, owner, filename, birthdate];
-  const result = await query(sql, params);
-
-  if (!result.insertId) return false;
-  return { cat_id: result.insertId };
-};
-
-export { listAllCats, findCatById, addCat };
+export { addCat, getAllCats, getCatById };

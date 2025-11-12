@@ -1,9 +1,20 @@
-import express from "express";
-import { getUser, createUser } from "../controllers/user-controller.js";
+// src/api/routes/user-router.js
+import { Router } from "express";
+import { body } from "express-validator";
+import { validationErrors } from "../../middlewares/error-handlers.js";
+import { getUsers, postUser } from "../controllers/user-controller.js";
 
-const userRouter = express.Router();
+const userRouter = Router();
 
-// /api/v1/users
-userRouter.route("/").get(getUser).post(createUser);
+userRouter
+  .route("/")
+  .get(getUsers)
+  .post(
+    body("email").trim().isEmail(),
+    body("username").trim().isLength({ min: 3, max: 20 }).isAlphanumeric(),
+    body("password").trim().isLength({ min: 8 }),
+    validationErrors,
+    postUser
+  );
 
 export default userRouter;

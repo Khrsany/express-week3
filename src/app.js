@@ -8,6 +8,9 @@ import userRouter from "./api/routes/user-router.js";
 import catRouter from "./api/routes/cat-router.js";
 import authRouter from "./api/routes/auth-router.js";
 
+// Virheenkäsittelymiddlewaret
+import { notFoundHandler, errorHandler } from "./middlewares/error-handlers.js";
+
 const app = express();
 
 // Middlewaret
@@ -24,5 +27,9 @@ app.use("/api/v1/auth", authRouter);
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", message: "Server running" });
 });
+
+// 404 ja virheenkäsittely middlewaret viimeiseksi
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 export default app;
