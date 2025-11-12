@@ -1,7 +1,10 @@
 // src/api/models/user-model.js
 import { query } from "../../utils/database.js";
 
-// Luo uusi käyttäjä. Salasana on jo hashattu controllerissa.
+/**
+ * Lisää uusi käyttäjä tietokantaan
+ * Salasana on jo hashattu controllerissa ennen kutsua
+ */
 const addUser = async ({ name, username, email, password, role = "user" }) => {
   const sql = `
     INSERT INTO wsk_users (name, username, email, password, role)
@@ -18,7 +21,21 @@ const addUser = async ({ name, username, email, password, role = "user" }) => {
   };
 };
 
-// Hae käyttäjä käyttäjänimellä (loginia varten)
+/**
+ * Hae kaikki käyttäjät tietokannasta
+ */
+const getAllUsers = async () => {
+  const sql = `
+    SELECT user_id, name, username, email, role
+    FROM wsk_users
+  `;
+  const users = await query(sql);
+  return users;
+};
+
+/**
+ * Hae yksittäinen käyttäjä käyttäjänimellä (kirjautumista varten)
+ */
 const findUserByUsername = async (username) => {
   const sql = `
     SELECT user_id, name, username, email, password, role
@@ -27,18 +44,7 @@ const findUserByUsername = async (username) => {
     LIMIT 1
   `;
   const rows = await query(sql, [username]);
-  return rows[0] || null;
+  return rows[0];
 };
 
-// (Tarpeen mukaan – jos sinulla on muualla kutsu tälle)
-const getUserById = async (id) => {
-  const sql = `
-    SELECT user_id, name, username, email, role
-    FROM wsk_users
-    WHERE user_id = ?
-  `;
-  const rows = await query(sql, [id]);
-  return rows[0] || null;
-};
-
-export { addUser, findUserByUsername, getUserById };
+export { addUser, getAllUsers, findUserByUsername };

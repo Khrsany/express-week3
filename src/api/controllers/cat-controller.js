@@ -1,42 +1,38 @@
 // src/api/controllers/cat-controller.js
-import { listAllCats, findCatById, addCat } from "../models/cat-model.js";
+import { addCat, getAllCats } from "../models/cat-model.js";
 
-// Hae kaikki kissat
-export const getCats = async (_req, res) => {
+const getCats = async (req, res, next) => {
   try {
-    const cats = await listAllCats();
+    const cats = await getAllCats();
     res.json(cats);
   } catch (err) {
-    console.error("Virhe haettaessa kissoja:", err);
-    res.status(500).json({ message: "Database error" });
+    next(err);
   }
 };
 
-// Hae kissa ID:n perusteella
-export const getCatById = async (req, res) => {
+const postCat = async (req, res, next) => {
   try {
-    const cat = await findCatById(req.params.id);
-    if (!cat) return res.status(404).json({ message: "Cat not found" });
-    res.json(cat);
+    if (!req.file) {
+      const error = new Error("Invalid or missing file");
+      error.status = 400;
+      return next(error);
+    }
+
+    const newCat = {
+      cat_name: req.body.cat_name,
+      weight: req.body.weight,
+      owner: req.body.owner,
+      birthdate: req.body.birthdate,
+      filename: req.file.filename,
+    };
+
+    const result = await addCat(newCat);
+    if (result.error) return next(new Error(result.error));
+
+    res.status(201).json({ message: "New media item added", ...result });
   } catch (err) {
-    console.error("Virhe haettaessa kissaa ID:llä:", err);
-    res.status(500).json({ message: "Database error" });
+    next(err);
   }
 };
 
-// Luo uusi kissa
-export const createCat = async (req, res) => {
-  try {
-    const result = await addCat(req.body);
-    if (!result) return res.status(400).json({ message: "Cat not added" });
-    res.status(201).json({ message: "Cat added", cat_id: result.cat_id });
-  } catch (err) {
-    console.error("Virhe lisättäessä kissaa:", err);
-    res.status(500).json({ message: "Database error" });
-  }
-};
-
-// Päivitä kissa (tässä vain malliksi – voi täydentää myöhemmin)
-export const updateCat = async (_req, res) => {
-  res.json({ message: "UpdateCat toimii (testi)" });
-};
+export { getCats, postCat };

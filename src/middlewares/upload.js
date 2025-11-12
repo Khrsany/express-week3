@@ -1,25 +1,21 @@
-import sharp from "sharp";
-import path from "path";
+// src/middlewares/upload.js
+import multer from "multer";
 
-const createThumbnail = async (req, res, next) => {
-  try {
-    if (!req.file) {
-      next();
-      return;
+const upload = multer({
+  dest: "uploads/",
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  fileFilter: (req, file, cb) => {
+    if (
+      file.mimetype.startsWith("image/") ||
+      file.mimetype.startsWith("video/")
+    ) {
+      cb(null, true);
+    } else {
+      const error = new Error("Only images and videos are allowed!");
+      error.status = 400;
+      cb(error, false);
     }
+  },
+});
 
-    const filePath = req.file.path;
-    const thumbPath = path.join("uploads", req.file.filename + "_thumb.png");
-
-    console.log("Luodaan thumbnail:", thumbPath);
-
-    await sharp(filePath).resize(160, 160).toFormat("png").toFile(thumbPath);
-
-    next();
-  } catch (err) {
-    console.error("Virhe thumbnailin luonnissa:", err);
-    next(err);
-  }
-};
-
-export { createThumbnail };
+export { upload };
