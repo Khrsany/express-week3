@@ -1,8 +1,6 @@
-// src/utils/database.js
-import mysql from "mysql2";
-import "dotenv/config"; // lataa .env muuttujat käyttöön
+import mysql from "mysql2/promise";
+import "dotenv/config";
 
-// luodaan yhteyspooli (pool = monen yhteyden hallinta tehokkaasti)
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -13,7 +11,9 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-// tehdään poolista asynkroninen versio (käytetään async/await)
-const promisePool = pool.promise();
+export const query = async (sql, params) => {
+  const [rows] = await pool.execute(sql, params);
+  return rows;
+};
 
-export default promisePool;
+export default { query, pool };

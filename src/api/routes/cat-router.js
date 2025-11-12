@@ -1,22 +1,16 @@
 import express from "express";
-import multer from "multer";
-import { createThumbnail } from "../../middlewares/upload.js";
 import {
-  getCat,
+  getCats,
   getCatById,
-  postCat,
-  putCat,
-  deleteCat,
+  createCat,
+  updateCat,
 } from "../controllers/cat-controller.js";
 
-const router = express.Router();
-const upload = multer({ dest: "uploads/" });
+const catRouter = express.Router();
 
-router
-  .route("/")
-  .get(getCat)
-  .post(upload.single("file"), createThumbnail, postCat);
+// /api/v1/cats
+catRouter.route("/").get(getCats).post(createCat);
 
-router.route("/:id").get(getCatById).put(putCat).delete(deleteCat);
+catRouter.route("/:id").get(getCatById).put(updateCat);
 
-export default router;
+export default catRouter;

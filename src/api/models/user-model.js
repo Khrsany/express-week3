@@ -1,36 +1,44 @@
 // src/api/models/user-model.js
-import promisePool from "../../utils/database.js";
+import { query } from "../../utils/database.js";
 
-// hae kaikki käyttäjät
-const listAllUsers = async () => {
-  const [rows] = await promisePool.query("SELECT * FROM wsk_users");
-  return rows;
-};
-
-// hae käyttäjä id:n perusteella
-const findUserById = async (id) => {
-  const [rows] = await promisePool.execute(
-    "SELECT * FROM wsk_users WHERE user_id = ?",
-    [id]
-  );
-  if (rows.length === 0) {
-    return false;
-  }
-  return rows[0];
-};
-
-// lisää uusi käyttäjä
-const addUser = async (user) => {
-  const { name, username, email, password, role } = user;
-  const sql = `INSERT INTO wsk_users (name, username, email, password, role)
-               VALUES (?, ?, ?, ?, ?)`;
+// Luo uusi käyttäjä. Salasana on jo hashattu controllerissa.
+const addUser = async ({ name, username, email, password, role = "user" }) => {
+  const sql = `
+    INSERT INTO wsk_users (name, username, email, password, role)
+    VALUES (?, ?, ?, ?, ?)
+  `;
   const params = [name, username, email, password, role];
-  const [result] = await promisePool.execute(sql, params);
-
-  if (result.affectedRows === 0) {
-    return false;
-  }
-  return { user_id: result.insertId };
+  const result = await query(sql, params);
+  return {
+    user_id: result.insertId,
+    name,
+    username,
+    email,
+    role,
+  };
 };
 
-export { listAllUsers, findUserById, addUser };
+// Hae käyttäjä käyttäjänimellä (loginia varten)
+const findUserByUsername = async (username) => {
+  const sql = `
+    SELECT user_id, name, username, email, password, role
+    FROM wsk_users
+    WHERE username = ?
+    LIMIT 1
+  `;
+  const rows = await query(sql, [username]);
+  return rows[0] || null;
+};
+
+// (Tarpeen mukaan – jos sinulla on muualla kutsu tälle)
+const getUserById = async (id) => {
+  const sql = `
+    SELECT user_id, name, username, email, role
+    FROM wsk_users
+    WHERE user_id = ?
+  `;
+  const rows = await query(sql, [id]);
+  return rows[0] || null;
+};
+
+export { addUser, findUserByUsername, getUserById };
